@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>양심감사위원회 · 이음중앙관리국 산하기관</title>
+<meta name="description" content="국민의 양심을 투명하고 공정하게 감사합니다. 이음중앙관리국 산하 가상행정기관 양심감사위원회">
+<meta property="og:title" content="양심감사위원회 · 이음중앙관리국 산하기관">
+<meta property="og:description" content="본인과 타인의 양심 상태를 자가진단하고 심의를 거쳐 공식 감사 결과 통지서를 발급받으세요.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:site_name" content="양심감사위원회">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b2f5b'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3Ctext x='32' y='42' font-size='28' font-family='serif' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3E%EC%96%91%3C/text%3E%3C/svg%3E">
+
+<!-- Google Web Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+
+<!-- 스타일시트 분리 -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="top">
+  <span><b>이음중앙관리국</b> 산하기관</span>
+  <span id="today"></span>
+</div>
+
+<header>
+  <div class="head-in">
+    <div class="seal" aria-hidden="true">양</div>
+    <div>
+      <h1>양심감사위원회</h1>
+      <p>Conscience Audit Committee · 국민의 양심을 투명하게, 공정하게 감사합니다</p>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="nav-in" id="nav">
+    <button data-t="notice" class="on">고시·공고</button>
+    <button data-t="apply">감사 신청</button>
+    <button data-t="list">접수 내역</button>
+    <button data-t="report">양심 불량 신고</button>
+    <button data-t="stat">감사 보고서</button>
+  </div>
+</nav>
+
+<main>
+  <!-- 1. 고시·공고 -->
+  <section id="notice" class="on">
+    <div class="bar">
+      <div>
+        <h2>고시·공고</h2>
+        <p class="sub" style="margin:0">위원회의 공식 안내 사항입니다.</p>
+      </div>
+      <button class="btn ghost sm" id="adminToggle">관리자 모드</button>
+    </div>
+    <div class="admin-box" id="adminBox">
+      <label style="margin-top:0">공고 제목</label>
+      <input id="nTitle" placeholder="예: 2026년 4분기 양심 정기 감사 안내">
+      <label>공고 내용</label>
+      <textarea id="nBody" placeholder="공고 상세 내용을 입력하세요."></textarea>
+      <label style="display:flex;gap:6px;align-items:center;font-weight:600">
+        <input type="checkbox" id="nImp" style="width:auto"> 중요 공고로 표시
+      </label>
+      <div class="acts">
+        <button class="btn" id="nAdd">공고 등록</button>
+      </div>
+    </div>
+    <div id="noticeList"></div>
+  </section>
+
+  <!-- 2. 감사 신청 -->
+  <section id="apply">
+    <h2>양심 감사 신청</h2>
+    <p class="sub">본인 또는 타인, 기관의 양심에 대해 감사를 신청할 수 있습니다. 접수 후 '접수 내역'에서 심의를 개시해 주세요.</p>
+    <div class="row">
+      <div>
+        <label for="aName">신청인 성명</label>
+        <input id="aName" maxlength="20" placeholder="예: 홍길동">
+      </div>
+      <div>
+        <label for="aType">감사 유형</label>
+        <select id="aType">
+          <option>자기 양심 감사</option>
+          <option>타인 양심 감사</option>
+          <option>기관·단체 양심 감사</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="aTarget">감사 대상 (성명 또는 명칭)</label>
+        <input id="aTarget" maxlength="30" placeholder="예: 본인 또는 대상 이름">
+      </div>
+      <div>
+        <label for="aMood">양심 상태 자가진단</label>
+        <select id="aMood">
+          <option value="clear">맑음 - 떳떳합니다</option>
+          <option value="cloud">흐림 - 약간 찔립니다</option>
+          <option value="fog">안개 - 잘 모르겠습니다</option>
+          <option value="none">측정 불가 - 기억이 안 납니다</option>
+        </select>
+      </div>
+    </div>
+    <label for="aReason">감사 사유</label>
+    <textarea id="aReason" placeholder="예: 야식으로 치킨을 먹고도 내일부터 다이어트라고 말한 건에 대하여"></textarea>
+    <div class="acts" style="margin-top:14px">
+      <button class="btn" id="aSubmit">감사 신청서 제출</button>
+    </div>
+  </section>
+
+  <!-- 3. 접수 내역 -->
+  <section id="list">
+    <h2>접수 내역</h2>
+    <p class="sub">심의를 개시하면 판정이 내려지고 감사 결과 통지서를 발급받을 수 있습니다.</p>
+    <div id="appList"></div>
+  </section>
+
+  <!-- 4. 신고 게시판 -->
+  <section id="report">
+    <h2>양심 불량 신고</h2>
+    <p class="sub">양심에 반하는 행위를 발견하셨나요? 익명으로도 신고하실 수 있습니다.</p>
+    <div class="row">
+      <div>
+        <label for="rName">신고자 (비우면 익명)</label>
+        <input id="rName" maxlength="20" placeholder="익명">
+      </div>
+      <div>
+        <label for="rLevel">양심 불량 정도</label>
+        <select id="rLevel">
+          <option>경미</option>
+          <option>보통</option>
+          <option>심각</option>
+        </select>
+      </div>
+    </div>
+    <label for="rTitle">제목</label>
+    <input id="rTitle" maxlength="60" placeholder="신고 제목">
+    <label for="rBody">신고 내용</label>
+    <textarea id="rBody" placeholder="목격하신 비양심 행위를 상세히 적어주세요."></textarea>
+    <div class="acts" style="margin:14px 0 22px">
+      <button class="btn" id="rSubmit">신고 접수</button>
+    </div>
+    <div id="reportList"></div>
+  </section>
+
+  <!-- 5. 감사 보고서 -->
+  <section id="stat">
+    <h2>양심 감사 보고서</h2>
+    <p class="sub">접수된 감사와 신고를 집계한 현황입니다.</p>
+    <div class="stats">
+      <div class="stat"><b id="sApps">0</b>감사 신청</div>
+      <div class="stat"><b id="sDone">0</b>심의 완료</div>
+      <div class="stat"><b id="sRep">0</b>불량 신고</div>
+    </div>
+    <h2 style="font-size:17px;margin-top:6px">판정 현황</h2>
+    <div id="verdictGraph"></div>
+    <h2 style="font-size:17px;margin-top:20px">신고 정도별 현황</h2>
+    <div id="levelGraph"></div>
+    <p class="meta" style="margin-top:20px">※ 위 수치는 이 브라우저에 저장된 데이터를 기준으로 집계됩니다.</p>
+    
+    <div class="acts" style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)">
+      <button class="btn ghost sm" id="btnExportData">데이터 백업 (JSON)</button>
+      <button class="btn danger sm" id="btnResetData">데이터 초기화</button>
+    </div>
+  </section>
+</main>
+
+<footer>
+  양심감사위원회 · 이음중앙관리국 산하기관 · v1.2.0<br>
+  본 사이트는 실제 기관과 무관한 패러디 사이트이며, 모든 판정은 재미를 위한 것입니다.
+</footer>
+
+<!-- 통지서 모달 -->
+<div class="modal" id="modal">
+  <div class="cert" id="cert"></div>
+</div>
+
+<!-- 분리된 애플리케이션 스크립트 -->
+<script src="app.js"></script>
+
+<!-- ===== 이음중앙관리국 소속 띠 (v1.3.0) ===== -->
+<script>
+(function(){
+  var BUREAU_URL='https://12cchris.github.io/ieum-central-bureau/';
+  var band;
+
+  function fit(){
+    if(!band) return;
+    var cur=parseFloat(band.style.marginTop)||0;
+    var natural=band.getBoundingClientRect().bottom+window.pageYOffset-cur;
+    var gap=Math.round(window.innerHeight-natural);
+    band.style.marginTop=(gap>0?gap:0)+'px';
+  }
+
+  function place(){
+    if(!band) return;
+    if(document.body.lastElementChild!==band)document.body.appendChild(band);
+    fit();
+  }
+
+  function init(){
+    if(document.getElementById('ieumBand'))return;
+    var st=document.createElement('style');
+    st.textContent=
+      '#ieumBand{display:block;width:100%;box-sizing:border-box;background:#003366;color:#dbe7f7;'
+     +'font:12px/1.4 "Noto Sans KR",sans-serif;text-align:center;padding:8px 16px;position:static}'
+     +'#ieumBand b{color:#fff;letter-spacing:1px}'
+     +'#ieumBand a{color:#dbe7f7;text-decoration:none;margin-left:10px}'
+     +'#ieumBand a:hover{color:#fff}';
+    document.head.appendChild(st);
+
+    band=document.createElement('div');
+    band.id='ieumBand';
+    band.innerHTML='소속 · <b>이음중앙관리국</b><a href="'+BUREAU_URL+'" target="_blank" rel="noopener">상위 기관 →</a>';
+    document.body.style.marginBottom='0';
+    document.body.appendChild(band);
+    fit();
+
+    new MutationObserver(function(){
+      if(document.body.lastElementChild!==band)place();
+    }).observe(document.body,{childList:true});
+    if(window.ResizeObserver)new ResizeObserver(fit).observe(document.body);
+    window.addEventListener('resize',fit);
+    window.addEventListener('load',function(){place();setTimeout(fit,300)});
+  }
+
+  if(document.body){init()}else{document.addEventListener('DOMContentLoaded',init)}
+})();
+</script>
+</body>
+</html>
