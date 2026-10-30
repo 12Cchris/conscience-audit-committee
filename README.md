@@ -1,7 +1,8 @@
 # conscience-audit-committee (양심감사위원회)
 
 > **"국민의 양심을 투명하게, 공정하게 감사합니다."**  
-> 이음중앙관리국 산하 가상행정기관 양심감사위원회 공식 웹 포털
+> 이음중앙관리국 산하 가상행정기관 양심감사위원회 공식 웹 포털  
+> 🔗 **서비스 바로가기**: [https://12cchris.github.io/conscience-audit-committee/](https://12cchris.github.io/conscience-audit-committee/)
 
 본 사이트는 실제 기관과 무관한 패러디 웹 애플리케이션으로, 사용자가 본인 또는 타인의 양심 상태를 접수하고 심의를 거쳐 공식 감사 결과 통지서를 발급받는 서비스입니다.
 
