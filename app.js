@@ -164,15 +164,66 @@
     }
   });
 
+  // SHA-256 해시 (비밀번호 원문은 코드에 저장되지 않음)
+  var ADMIN_HASH = '4a65d874a5cbe25286e5d5d6db3ce24fc06c9d99eef619718fe839941cecc39c';
+
+  function sha256(str) {
+    var encoder = new TextEncoder();
+    var data = encoder.encode(str);
+    return crypto.subtle.digest('SHA-256', data).then(function(buf) {
+      return Array.from(new Uint8Array(buf))
+        .map(function(b) { return b.toString(16).padStart(2, '0'); })
+        .join('');
+    });
+  }
+
+  var adminAttempts = parseInt(load('gac_admin_attempts', 0), 10) || 0;
+  var adminLockUntil = load('gac_admin_lock_until', 0) || 0;
+
   $('adminToggle').onclick = function() {
-    if (!admin) {
-      var pw = prompt('관리자 확인: 패러디 관리 모드로 진입하시겠습니까? (확인을 누르면 진입합니다)', '양심');
-      if (pw === null) return;
+    if (admin) {
+      admin = false;
+      $('adminBox').classList.remove('show');
+      this.textContent = '관리자 모드';
+      renderNotices();
+      return;
     }
-    admin = !admin;
-    $('adminBox').classList.toggle('show', admin);
-    this.textContent = admin ? '관리자 모드 해제' : '관리자 모드';
-    renderNotices();
+
+    // 잠금 체크
+    var now = Date.now();
+    if (adminLockUntil > now) {
+      var remainSec = Math.ceil((adminLockUntil - now) / 1000);
+      alert('로그인 시도 횟수 초과로 잠금되었습니다.\n' + remainSec + '초 후 다시 시도해 주세요.');
+      return;
+    }
+
+    var pw = prompt('관리자 비밀번호를 입력하세요:');
+    if (pw === null) return;
+
+    var btn = this;
+    sha256(pw).then(function(hash) {
+      if (hash === ADMIN_HASH) {
+        adminAttempts = 0;
+        save('gac_admin_attempts', 0);
+        save('gac_admin_lock_until', 0);
+        admin = true;
+        $('adminBox').classList.add('show');
+        btn.textContent = '관리자 모드 해제';
+        renderNotices();
+      } else {
+        adminAttempts++;
+        save('gac_admin_attempts', adminAttempts);
+        if (adminAttempts >= 5) {
+          adminLockUntil = Date.now() + 5 * 60 * 1000; // 5분 잠금
+          save('gac_admin_lock_until', adminLockUntil);
+          adminAttempts = 0;
+          save('gac_admin_attempts', 0);
+          alert('비밀번호가 틀렸습니다.\n5회 연속 실패로 5분간 잠금됩니다.');
+        } else {
+          alert('비밀번호가 틀렸습니다. (' + adminAttempts + '/5회)');
+        }
+      }
+    });
   };
 
   $('nAdd').onclick = function() {
