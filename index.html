@@ -164,13 +164,15 @@
     
     <div class="acts" style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)">
       <button class="btn ghost sm" id="btnExportData">데이터 백업 (JSON)</button>
+      <button class="btn ghost sm" id="btnImportData">백업 복원</button>
+      <input type="file" id="fileImportData" accept="application/json,.json" hidden>
       <button class="btn danger sm" id="btnResetData">데이터 초기화</button>
     </div>
   </section>
 </main>
 
 <footer>
-  양심감사위원회 · 이음중앙관리국 산하기관 · v1.2.0<br>
+  양심감사위원회 · 이음중앙관리국 산하기관 · <span id="ver">v1.4.0</span><br>
   본 사이트는 실제 기관과 무관한 패러디 사이트이며, 모든 판정은 재미를 위한 것입니다.
 </footer>
 
@@ -182,7 +184,7 @@
 <!-- 분리된 애플리케이션 스크립트 -->
 <script src="app.js"></script>
 
-<!-- ===== 이음중앙관리국 소속 띠 (v1.3.0) ===== -->
+<!-- ===== 이음중앙관리국 소속 띠 ===== -->
 <script>
 (function(){
   var BUREAU_URL='https://12cchris.github.io/ieum-central-bureau/';

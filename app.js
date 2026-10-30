@@ -1,7 +1,9 @@
 (function() {
   'use strict';
 
+  var VERSION = '1.4.0';
   var $ = function(id) { return document.getElementById(id); };
+  if ($('ver')) $('ver').textContent = 'v' + VERSION;
 
   function load(k, d) {
     try {
@@ -12,10 +14,18 @@
     }
   }
 
+  var saveWarned = false;
   function save(k, v) {
     try {
       localStorage.setItem(k, JSON.stringify(v));
-    } catch(e) {}
+      return true;
+    } catch(e) {
+      if (!saveWarned) {
+        saveWarned = true;
+        alert('이 브라우저에서는 데이터를 저장할 수 없습니다.\n(시크릿 모드이거나 저장 공간이 가득 찼을 수 있습니다.)\n페이지를 닫으면 입력한 내용이 사라집니다. 필요하면 [감사 보고서]에서 백업(JSON)을 받아 주세요.');
+      }
+      return false;
+    }
   }
 
   function esc(s) {
@@ -115,6 +125,7 @@
   var agreedIds = load('gac_agreed_ids', []);
 
   var admin = false;
+  var openIds = {}; // 펼쳐 둔 공고·신고 (다시 그려도 유지)
 
   /* 탭 전환 */
   $('nav').addEventListener('click', function(e) {
@@ -138,7 +149,7 @@
     notices.slice().sort(function(a, b) {
       return (b.imp - a.imp) || (b.id - a.id);
     }).forEach(function(n) {
-      h += '<div class="item" data-id="' + n.id + '"><div class="item-h">' +
+      h += '<div class="item' + (openIds['n' + n.id] ? ' open' : '') + '" data-id="' + n.id + '"><div class="item-h">' +
         (n.imp ? '<span class="tag imp">중요</span>' : '<span class="tag">공고</span>') +
         '<span class="t">' + esc(n.title) + '</span><span class="d">' + esc(n.date) + '</span></div>' +
         '<div class="item-b">' + esc(n.body) +
@@ -160,7 +171,7 @@
     }
     var it = e.target.closest('.item');
     if (it && !e.target.closest('.item-b')) {
-      it.classList.toggle('open');
+      openIds['n' + it.getAttribute('data-id')] = it.classList.toggle('open');
     }
   });
 
@@ -424,13 +435,13 @@
     reports.slice().reverse().forEach(function(r) {
       var cls = r.level === '심각' ? 'no' : r.level === '보통' ? 'fix' : 'ok';
       var isAgreed = agreedIds.indexOf(r.id) !== -1;
-      h += '<div class="item" data-id="' + r.id + '"><div class="item-h">' +
+      h += '<div class="item' + (openIds['r' + r.id] ? ' open' : '') + '" data-id="' + r.id + '"><div class="item-h">' +
         '<span class="tag ' + cls + '">' + esc(r.level) + '</span>' +
         '<span class="t">' + esc(r.title) + '</span>' +
         '<span class="d">' + esc(r.name) + ' · ' + esc(r.date) + '</span></div>' +
         '<div class="item-b">' + esc(r.body) +
         '<div class="acts">' +
-        '<button class="btn ' + (isAgreed ? 'ghost' : 'ghost') + ' sm" data-agree="' + r.id + '"' + (isAgreed ? ' style="font-weight:700;color:var(--navy);background:#e9edf5"' : '') + '>' +
+        '<button class="btn ghost sm" data-agree="' + r.id + '"' + (isAgreed ? ' style="font-weight:700;color:var(--navy);background:#e9edf5"' : '') + '>' +
         (isAgreed ? '✓ 공감됨 ' : '공감 ') + r.agree + '</button>' +
         '<button class="btn danger sm" data-del-r="' + r.id + '">삭제</button>' +
         '</div></div></div>';
@@ -455,9 +466,8 @@
         }
         save('gac_reports', reports);
         save('gac_agreed_ids', agreedIds);
+        openIds['r' + ag] = true;
         renderReports();
-        var el = document.querySelector('#reportList .item[data-id="' + ag + '"]');
-        if (el) el.classList.add('open');
       }
       return;
     }
@@ -465,7 +475,9 @@
     if (d) {
       if (confirm('이 신고를 삭제할까요?')) {
         reports = reports.filter(function(x) { return String(x.id) !== String(d); });
+        agreedIds = agreedIds.filter(function(x) { return String(x) !== String(d); });
         save('gac_reports', reports);
+        save('gac_agreed_ids', agreedIds);
         renderReports();
       }
       return;
@@ -473,7 +485,7 @@
 
     var it = e.target.closest('.item');
     if (it && !e.target.closest('.item-b')) {
-      it.classList.toggle('open');
+      openIds['r' + it.getAttribute('data-id')] = it.classList.toggle('open');
     }
   });
 
@@ -518,10 +530,13 @@
   if ($('btnExportData')) {
     $('btnExportData').onclick = function() {
       var data = {
+        app: 'conscience-audit-committee',
+        version: VERSION,
         notices: notices,
         apps: apps,
         appSeq: appSeq,
         reports: reports,
+        agreedIds: agreedIds,
         exportedAt: new Date().toISOString()
       };
       var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -534,17 +549,56 @@
     };
   }
 
+  if ($('btnImportData') && $('fileImportData')) {
+    $('btnImportData').onclick = function() { $('fileImportData').click(); };
+    $('fileImportData').onchange = function() {
+      var f = this.files && this.files[0];
+      var input = this;
+      if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function() {
+        input.value = '';
+        var d;
+        try { d = JSON.parse(fr.result); } catch (e) { d = null; }
+        if (!d || d.app !== 'conscience-audit-committee' ||
+            !Array.isArray(d.apps) || !Array.isArray(d.reports) || !Array.isArray(d.notices)) {
+          alert('양심감사위원회 백업 파일이 아니거나 파일이 손상되었습니다.');
+          return;
+        }
+        if (!confirm('백업 파일(' + (d.exportedAt || '날짜 미상').slice(0, 10) + ')로 복원할까요?\n현재 공고·신청·신고 데이터는 모두 백업 내용으로 바뀝니다.')) return;
+        notices = d.notices;
+        apps = d.apps;
+        reports = d.reports;
+        agreedIds = Array.isArray(d.agreedIds) ? d.agreedIds : [];
+        appSeq = Math.max(parseInt(d.appSeq, 10) || 0, apps.length);
+        save('gac_notices', notices);
+        save('gac_apps', apps);
+        save('gac_reports', reports);
+        save('gac_agreed_ids', agreedIds);
+        save('gac_app_seq', appSeq);
+        openIds = {};
+        renderAll();
+        alert('데이터가 복원되었습니다.');
+      };
+      fr.onerror = function() { alert('파일을 읽지 못했습니다.'); };
+      fr.readAsText(f);
+    };
+  }
+
   if ($('btnResetData')) {
     $('btnResetData').onclick = function() {
-      if (confirm('모든 감사 신청 및 신고 기록을 초기화하시겠습니까?\n이 작업은 취소할 수 없습니다.')) {
-        localStorage.removeItem('gac_apps');
-        localStorage.removeItem('gac_app_seq');
-        localStorage.removeItem('gac_reports');
-        localStorage.removeItem('gac_agreed_ids');
+      if (confirm('모든 감사 신청 및 신고 기록을 초기화하시겠습니까?\n(고시·공고는 유지됩니다.)\n이 작업은 취소할 수 없습니다.')) {
+        try {
+          localStorage.removeItem('gac_apps');
+          localStorage.removeItem('gac_app_seq');
+          localStorage.removeItem('gac_reports');
+          localStorage.removeItem('gac_agreed_ids');
+        } catch (e) {}
         apps = [];
         appSeq = 0;
         reports = [];
         agreedIds = [];
+        openIds = {};
         renderAll();
         alert('데이터가 초기화되었습니다.');
       }
