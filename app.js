@@ -286,7 +286,7 @@
     if (!admin) return;
     var t = $('nTitle').value.trim();
     var b = $('nBody').value.trim();
-    if (!need(['nTitle', 'nBody'])) {
+    if (need(['nTitle', 'nBody'])) {
       toast('공고 제목과 내용을 모두 입력해 주세요.', 'err');
       return;
     }
@@ -308,7 +308,7 @@
     var name = $('aName').value.trim();
     var target = $('aTarget').value.trim();
     var reason = $('aReason').value.trim();
-    if (!need(['aName', 'aTarget', 'aReason'])) {
+    if (need(['aName', 'aTarget', 'aReason'])) {
       toast('신청인, 감사 대상, 감사 사유를 모두 입력해 주세요.', 'err');
       return;
     }
@@ -489,7 +489,7 @@
   $('rSubmit').onclick = function() {
     var t = $('rTitle').value.trim();
     var b = $('rBody').value.trim();
-    if (!need(['rTitle', 'rBody'])) {
+    if (need(['rTitle', 'rBody'])) {
       toast('신고 제목과 내용을 모두 입력해 주세요.', 'err');
       return;
     }

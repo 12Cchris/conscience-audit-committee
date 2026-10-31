@@ -14,3 +14,5 @@ const firebaseConfig = {
   // Firebase 콘솔 > Authentication > 사용자 에서 만든 관리자 계정의 UID
   adminUid: 'gtLg0V83rbgZvdL1fvzxuqbUqE53'
 };
+// store.js 가 window.GAC_FIREBASE 를 통해 설정값을 읽습니다.
+window.GAC_FIREBASE = { config: firebaseConfig, adminUid: firebaseConfig.adminUid };
