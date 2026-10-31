@@ -37,6 +37,8 @@
 .pw-box h3{margin:0 0 4px;color:var(--navy);font-size:16px}
 .pw-msg{min-height:20px;margin:8px 0 0;font-size:13px;color:var(--red)}
 @media print{.pw-modal{display:none!important}}
+[hidden]{display:none!important}
+.mode-note{background:#fff8e6;border-bottom:1px solid #ecd9a0;color:#7a5b12;font-size:13px;text-align:center;padding:8px 16px}
 /* 검토 상태 */
 .tag.pend{background:#2f6fdd}
 .tag.rej{background:#444}
@@ -80,6 +82,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     <button data-t="stat" role="tab" id="tab-stat" aria-controls="stat" aria-selected="false" tabindex="-1">감사 보고서</button>
   </div>
 </nav>
+
+<div id="modeNote" class="mode-note" role="note" hidden>※ 서버(Firebase)에 연결되지 않아 이 브라우저에만 저장됩니다. 다른 사람과 공유되지 않습니다.</div>
 
 <main id="main" tabindex="-1">
   <!-- 1. 고시·공고 -->
@@ -189,15 +193,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
       <div class="stat"><b id="sApps">0</b>감사 신청</div>
       <div class="stat"><b id="sDone">0</b>심의 완료</div>
       <div class="stat"><b id="sRep">0</b>불량 신고</div>
-      <div class="stat"><b id="sPend">0</b>검토 대기</div>
+      <div class="stat" id="statPend"><b id="sPend">0</b>검토 대기</div>
     </div>
     <h2 style="font-size:17px;margin-top:6px">판정 현황</h2>
     <div id="verdictGraph"></div>
     <h2 style="font-size:17px;margin-top:20px">신고 정도별 현황</h2>
     <div id="levelGraph"></div>
-    <p class="meta" style="margin-top:20px">※ 위 수치는 이 브라우저에 저장된 데이터를 기준으로 집계됩니다.</p>
+    <p class="meta" id="statNote" style="margin-top:20px">※ 위 수치는 이 브라우저에 저장된 데이터를 기준으로 집계됩니다.</p>
     
-    <div class="acts" style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)">
+    <div class="acts" id="backupRow" style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)">
       <button class="btn ghost sm" id="btnExportData">데이터 백업 (JSON)</button>
       <button class="btn ghost sm" id="btnImportData">백업 복원</button>
       <input type="file" id="fileImportData" accept="application/json,.json" hidden>
@@ -207,7 +211,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 </main>
 
 <footer>
-  양심감사위원회 · 이음중앙관리국 산하기관 · <span id="ver">v1.6.0</span><br>
+  양심감사위원회 · 이음중앙관리국 산하기관 · <span id="ver">v2.0.0</span><br>
   본 사이트는 실제 기관과 무관한 패러디 사이트이며, 모든 판정은 재미를 위한 것입니다.
 </footer>
 
@@ -215,8 +219,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 <div class="pw-modal" id="pwModal" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
   <form class="pw-box" id="pwForm" autocomplete="off">
     <h3 id="pwTitle">관리자 확인</h3>
-    <p class="meta" style="margin:0 0 10px">관리자 비밀번호를 입력해 주세요.</p>
-    <input type="password" id="pwInput" aria-label="관리자 비밀번호" autocomplete="off">
+    <p class="meta" style="margin:0 0 10px">관리자만 로그인할 수 있습니다.</p>
+    <div id="pwEmailRow" hidden>
+      <label for="pwEmail" style="margin-top:0">이메일</label>
+      <input type="email" id="pwEmail" autocomplete="username">
+    </div>
+    <label for="pwInput" style="margin-top:8px">비밀번호</label>
+    <input type="password" id="pwInput" autocomplete="current-password">
     <div class="pw-msg" id="pwMsg" role="alert"></div>
     <div class="acts" style="margin-top:10px">
       <button class="btn" type="submit" id="pwOk">확인</button>
@@ -232,10 +241,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   <div class="cert" id="cert"></div>
 </div>
 
-<!-- 분리된 애플리케이션 스크립트 -->
+<!-- Firebase (compat) · 설정 · 저장소 · 앱 -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="store.js"></script>
 <script src="app.js"></script>
 
-<!-- 이음중앙관리국 소속 띠 -->
+<!-- ===== 이음중앙관리국 소속 띠 (v1.3.1) ===== -->
 <div class="ieum-band">소속 · <b>이음중앙관리국</b><a href="https://12cchris.github.io/ieum-central-bureau/" target="_blank" rel="noopener">상위 기관 →</a></div>
 </body>
 </html>

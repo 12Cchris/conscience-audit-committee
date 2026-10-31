@@ -1,0 +1,105 @@
+rules_version = '2';
+
+// 양심감사위원회 Firestore 보안 규칙
+// 1) 아래 PASTE_ADMIN_UID_HERE 를 관리자 계정의 UID 로 바꾸세요. (firebase-config.js 의 adminUid 와 같은 값)
+// 2) Firebase 콘솔 > Firestore Database > 규칙 에 전체를 붙여넣고 [게시] 를 누르세요.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == 'PASTE_ADMIN_UID_HERE';
+    }
+
+    function okStr(v, max) {
+      return v is string && v.size() > 0 && v.size() <= max;
+    }
+
+    // ── 공고: 누구나 읽기, 관리자만 쓰기 ──
+    match /notices/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── 접수번호 카운터(연도별): 신청할 때 1씩만 올릴 수 있음 ──
+    match /counters/{year} {
+      allow read: if true;
+      allow create: if year.matches('20[0-9][0-9]')
+                    && request.resource.data.keys().hasOnly(['seq'])
+                    && request.resource.data.seq == 1;
+      allow update: if request.resource.data.keys().hasOnly(['seq'])
+                    && request.resource.data.seq == resource.data.seq + 1;
+      allow delete: if isAdmin();
+    }
+
+    // ── 감사 신청 ──
+    // 목록: 관리자는 전체, 일반 방문자는 '허가된(접수·완료)' 건만
+    // 단건: 문서 ID(무작위 20자)를 아는 사람(= 신청한 본인)만 개별 조회 가능
+    match /applications/{id} {
+      allow get: if true;
+      allow list: if isAdmin() || resource.data.status in ['접수', '완료'];
+      allow create: if validNewApp(request.resource.data);
+      allow update: if isAdmin() || validJudge();
+      allow delete: if isAdmin();
+    }
+
+    function validNewApp(d) {
+      return d.keys().hasOnly(['no', 'applicant', 'type', 'target', 'reason', 'mood', 'date', 'ts', 'status', 'verdict', 'comment', 'judged'])
+        && d.keys().hasAll(['no', 'applicant', 'type', 'target', 'reason', 'mood', 'date', 'ts', 'status', 'verdict', 'comment', 'judged'])
+        && okStr(d.no, 30)
+        && okStr(d.applicant, 20)
+        && okStr(d.target, 30)
+        && okStr(d.reason, 1000)
+        && d.type in ['자기 양심 감사', '타인 양심 감사', '기관·단체 양심 감사']
+        && d.mood in ['clear', 'cloud', 'fog', 'none']
+        && okStr(d.date, 12)
+        && d.ts is number
+        && d.status == '검토중'
+        && d.verdict == null && d.comment == null && d.judged == null;
+    }
+
+    // 허가된(접수) 신청만 '심의 개시'로 완료 처리 가능 (판정·의견·판정일자만 변경)
+    function validJudge() {
+      let b = resource.data;
+      let a = request.resource.data;
+      return b.status == '접수'
+        && a.status == '완료'
+        && a.verdict in ['ok', 'fix', 'no']
+        && okStr(a.comment, 200)
+        && okStr(a.judged, 12)
+        && a.diff(b).affectedKeys().hasOnly(['status', 'verdict', 'comment', 'judged']);
+    }
+
+    // ── 양심 불량 신고 ──
+    // 목록: 관리자는 전체, 일반 방문자는 '게시' 된 건만
+    match /reports/{id} {
+      allow get: if true;
+      allow list: if isAdmin() || resource.data.status == '게시';
+      allow create: if validNewReport(request.resource.data);
+      allow update: if isAdmin() || validAgree();
+      allow delete: if isAdmin();
+    }
+
+    function validNewReport(d) {
+      return d.keys().hasOnly(['name', 'level', 'title', 'body', 'date', 'agree', 'ts', 'status'])
+        && d.keys().hasAll(['name', 'level', 'title', 'body', 'date', 'agree', 'ts', 'status'])
+        && okStr(d.name, 20)
+        && d.level in ['경미', '보통', '심각']
+        && okStr(d.title, 60)
+        && okStr(d.body, 2000)
+        && okStr(d.date, 12)
+        && d.ts is number
+        && d.agree == 0
+        && d.status == '검토중';
+    }
+
+    // 게시된 신고에만 공감(agree) ±1 가능
+    function validAgree() {
+      let b = resource.data;
+      let a = request.resource.data;
+      return b.status == '게시'
+        && a.diff(b).affectedKeys().hasOnly(['agree'])
+        && a.agree >= 0
+        && (a.agree == b.agree + 1 || a.agree == b.agree - 1);
+    }
+  }
+}
