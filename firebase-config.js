@@ -4,15 +4,13 @@
  * (실제 보호는 Firestore 보안 규칙 firestore.rules 가 담당합니다.)
  * apiKey 가 'YOUR_' 로 시작하면 서버에 연결하지 않고 이 브라우저에만 저장합니다.
  */
-window.GAC_FIREBASE = {
-  config: {
-    apiKey: 'YOUR_API_KEY',
-    authDomain: 'YOUR_PROJECT_ID.firebaseapp.com',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_PROJECT_ID.firebasestorage.app',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    appId: 'YOUR_APP_ID'
-  },
+const firebaseConfig = {
+  apiKey: "AIzaSyDiL2iJ64yaGiLZ_0Jb0jYKH0RnExAtxNo",
+  authDomain: "conscience-audit-committee.firebaseapp.com",
+  projectId: "conscience-audit-committee",
+  storageBucket: "conscience-audit-committee.firebasestorage.app",
+  messagingSenderId: "247313664683",
+  appId: "1:247313664683:web:96d53c3fb797bce33705ee",
   // Firebase 콘솔 > Authentication > 사용자 에서 만든 관리자 계정의 UID
-  adminUid: 'YOUR_ADMIN_UID'
+  adminUid: 'gtLg0V83rbgZvdL1fvzxuqbUqE53'
 };
