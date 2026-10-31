@@ -20,6 +20,11 @@ body {
   color: var(--text);
   font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
   line-height: 1.6;
+  /* 내용이 짧아도 소속 띠가 화면 맨 아래에 오도록 */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 상단 정보 바 */
@@ -115,9 +120,11 @@ nav button.on {
 
 /* 본문 레이아웃 */
 main {
+  width: 100%;
   max-width: 980px;
   margin: 20px auto;
   padding: 0 16px;
+  flex: 1 0 auto;
 }
 
 section {
@@ -338,14 +345,14 @@ textarea {
 /* 통계 및 그래프 */
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin-bottom: 20px;
 }
 
 @media (max-width: 640px) {
   .stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -575,6 +582,7 @@ textarea {
 
 /* 푸터 */
 footer {
+  width: 100%;
   max-width: 980px;
   margin: 0 auto 30px;
   padding: 0 16px;
@@ -584,9 +592,35 @@ footer {
   line-height: 1.8;
 }
 
+/* 소속 띠 (이음중앙관리국) */
+.ieum-band {
+  background: #003366;
+  color: #dbe7f7;
+  font-size: 12px;
+  line-height: 1.4;
+  text-align: center;
+  padding: 8px 16px;
+}
+.ieum-band b {
+  color: #fff;
+  letter-spacing: 1px;
+}
+.ieum-band a {
+  color: #dbe7f7;
+  text-decoration: none;
+  margin-left: 10px;
+}
+.ieum-band a:hover,
+.ieum-band a:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+}
+
 /* 인쇄 스타일 최적화 */
 @media print {
   body {
+    display: block;
+    min-height: 0;
     background: #fff;
     color: #000;
   }

@@ -10,6 +10,16 @@
 <meta property="og:type" content="website">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:site_name" content="양심감사위원회">
+<meta property="og:url" content="https://12cchris.github.io/conscience-audit-committee/">
+<meta property="og:image" content="https://12cchris.github.io/conscience-audit-committee/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="양심감사위원회 · 이음중앙관리국 산하기관">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="양심감사위원회 · 이음중앙관리국 산하기관">
+<meta name="twitter:image" content="https://12cchris.github.io/conscience-audit-committee/og-image.png">
+<meta name="theme-color" content="#1b2f5b">
+<link rel="canonical" href="https://12cchris.github.io/conscience-audit-committee/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231b2f5b'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23ffffff' stroke-width='3'/%3E%3Ctext x='32' y='42' font-size='28' font-family='serif' font-weight='bold' fill='%23ffffff' text-anchor='middle'%3E%EC%96%91%3C/text%3E%3C/svg%3E">
 
 <!-- Google Web Fonts -->
@@ -19,8 +29,32 @@
 
 <!-- 스타일시트 분리 -->
 <link rel="stylesheet" href="style.css">
+<style>
+/* 관리자 비밀번호 창 (인쇄 시 표시되지 않도록 .modal 과 분리) */
+.pw-modal{position:fixed;inset:0;background:rgba(10,18,40,.65);display:none;align-items:center;justify-content:center;padding:16px;z-index:1100}
+.pw-modal.show{display:flex}
+.pw-box{background:#fff;border-top:4px solid var(--navy);border-radius:3px;padding:20px;width:100%;max-width:340px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.pw-box h3{margin:0 0 4px;color:var(--navy);font-size:16px}
+.pw-msg{min-height:20px;margin:8px 0 0;font-size:13px;color:var(--red)}
+@media print{.pw-modal{display:none!important}}
+/* 검토 상태 */
+.tag.pend{background:#2f6fdd}
+.tag.rej{background:#444}
+nav button .badge{display:inline-block;min-width:18px;margin-left:6px;padding:0 5px;border-radius:9px;background:var(--red);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center}
+/* 접근성·알림 */
+.skip{position:absolute;left:-9999px;top:0;background:#fff;color:var(--navy);padding:8px 12px;z-index:2000;font-weight:700}
+.skip:focus{left:8px;top:8px}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.item-h:focus-visible{outline:3px solid #2f6fdd;outline-offset:2px}
+[aria-invalid="true"]{border-color:var(--red)!important;background:#fff5f4}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);max-width:calc(100% - 32px);background:var(--navy2);color:#fff;padding:12px 18px;border-radius:4px;font-size:14px;line-height:1.5;box-shadow:0 6px 20px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:1200}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:var(--red)}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media print{.toast,.skip{display:none!important}}
+</style>
 </head>
 <body>
+<a class="skip" href="#main">본문 바로가기</a>
 
 <div class="top">
   <span><b>이음중앙관리국</b> 산하기관</span>
@@ -38,18 +72,18 @@
 </header>
 
 <nav>
-  <div class="nav-in" id="nav">
-    <button data-t="notice" class="on">고시·공고</button>
-    <button data-t="apply">감사 신청</button>
-    <button data-t="list">접수 내역</button>
-    <button data-t="report">양심 불량 신고</button>
-    <button data-t="stat">감사 보고서</button>
+  <div class="nav-in" id="nav" role="tablist" aria-label="메뉴">
+    <button data-t="notice" class="on" role="tab" id="tab-notice" aria-controls="notice" aria-selected="true" tabindex="0">고시·공고</button>
+    <button data-t="apply" role="tab" id="tab-apply" aria-controls="apply" aria-selected="false" tabindex="-1">감사 신청</button>
+    <button data-t="list" role="tab" id="tab-list" aria-controls="list" aria-selected="false" tabindex="-1">접수 내역</button>
+    <button data-t="report" role="tab" id="tab-report" aria-controls="report" aria-selected="false" tabindex="-1">양심 불량 신고</button>
+    <button data-t="stat" role="tab" id="tab-stat" aria-controls="stat" aria-selected="false" tabindex="-1">감사 보고서</button>
   </div>
 </nav>
 
-<main>
+<main id="main" tabindex="-1">
   <!-- 1. 고시·공고 -->
-  <section id="notice" class="on">
+  <section id="notice" class="on" role="tabpanel" aria-labelledby="tab-notice">
     <div class="bar">
       <div>
         <h2>고시·공고</h2>
@@ -58,9 +92,9 @@
       <button class="btn ghost sm" id="adminToggle">관리자 모드</button>
     </div>
     <div class="admin-box" id="adminBox">
-      <label style="margin-top:0">공고 제목</label>
+      <label for="nTitle" style="margin-top:0">공고 제목</label>
       <input id="nTitle" placeholder="예: 2026년 4분기 양심 정기 감사 안내">
-      <label>공고 내용</label>
+      <label for="nBody">공고 내용</label>
       <textarea id="nBody" placeholder="공고 상세 내용을 입력하세요."></textarea>
       <label style="display:flex;gap:6px;align-items:center;font-weight:600">
         <input type="checkbox" id="nImp" style="width:auto"> 중요 공고로 표시
@@ -73,9 +107,9 @@
   </section>
 
   <!-- 2. 감사 신청 -->
-  <section id="apply">
+  <section id="apply" role="tabpanel" aria-labelledby="tab-apply">
     <h2>양심 감사 신청</h2>
-    <p class="sub">본인 또는 타인, 기관의 양심에 대해 감사를 신청할 수 있습니다. 접수 후 '접수 내역'에서 심의를 개시해 주세요.</p>
+    <p class="sub">본인 또는 타인, 기관의 양심에 대해 감사를 신청할 수 있습니다. 신청하면 '검토중' 상태가 되며, 관리자가 허가한 뒤 '접수 내역'에서 심의를 개시할 수 있습니다.</p>
     <div class="row">
       <div>
         <label for="aName">신청인 성명</label>
@@ -113,16 +147,16 @@
   </section>
 
   <!-- 3. 접수 내역 -->
-  <section id="list">
+  <section id="list" role="tabpanel" aria-labelledby="tab-list">
     <h2>접수 내역</h2>
-    <p class="sub">심의를 개시하면 판정이 내려지고 감사 결과 통지서를 발급받을 수 있습니다.</p>
+    <p class="sub">관리자가 허가한 신청만 심의를 개시할 수 있으며, 심의가 끝나면 감사 결과 통지서를 발급받을 수 있습니다.</p>
     <div id="appList"></div>
   </section>
 
   <!-- 4. 신고 게시판 -->
-  <section id="report">
+  <section id="report" role="tabpanel" aria-labelledby="tab-report">
     <h2>양심 불량 신고</h2>
-    <p class="sub">양심에 반하는 행위를 발견하셨나요? 익명으로도 신고하실 수 있습니다.</p>
+    <p class="sub">양심에 반하는 행위를 발견하셨나요? 익명으로도 신고하실 수 있습니다. 접수된 신고는 관리자의 검토(허가)를 거쳐 게시됩니다.</p>
     <div class="row">
       <div>
         <label for="rName">신고자 (비우면 익명)</label>
@@ -148,13 +182,14 @@
   </section>
 
   <!-- 5. 감사 보고서 -->
-  <section id="stat">
+  <section id="stat" role="tabpanel" aria-labelledby="tab-stat">
     <h2>양심 감사 보고서</h2>
     <p class="sub">접수된 감사와 신고를 집계한 현황입니다.</p>
     <div class="stats">
       <div class="stat"><b id="sApps">0</b>감사 신청</div>
       <div class="stat"><b id="sDone">0</b>심의 완료</div>
       <div class="stat"><b id="sRep">0</b>불량 신고</div>
+      <div class="stat"><b id="sPend">0</b>검토 대기</div>
     </div>
     <h2 style="font-size:17px;margin-top:6px">판정 현황</h2>
     <div id="verdictGraph"></div>
@@ -164,72 +199,43 @@
     
     <div class="acts" style="margin-top:20px;padding-top:14px;border-top:1px dashed var(--line)">
       <button class="btn ghost sm" id="btnExportData">데이터 백업 (JSON)</button>
+      <button class="btn ghost sm" id="btnImportData">백업 복원</button>
+      <input type="file" id="fileImportData" accept="application/json,.json" hidden>
       <button class="btn danger sm" id="btnResetData">데이터 초기화</button>
     </div>
   </section>
 </main>
 
 <footer>
-  양심감사위원회 · 이음중앙관리국 산하기관 · v1.2.0<br>
+  양심감사위원회 · 이음중앙관리국 산하기관 · <span id="ver">v1.6.0</span><br>
   본 사이트는 실제 기관과 무관한 패러디 사이트이며, 모든 판정은 재미를 위한 것입니다.
 </footer>
 
+<!-- 관리자 비밀번호 창 -->
+<div class="pw-modal" id="pwModal" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+  <form class="pw-box" id="pwForm" autocomplete="off">
+    <h3 id="pwTitle">관리자 확인</h3>
+    <p class="meta" style="margin:0 0 10px">관리자 비밀번호를 입력해 주세요.</p>
+    <input type="password" id="pwInput" aria-label="관리자 비밀번호" autocomplete="off">
+    <div class="pw-msg" id="pwMsg" role="alert"></div>
+    <div class="acts" style="margin-top:10px">
+      <button class="btn" type="submit" id="pwOk">확인</button>
+      <button class="btn ghost" type="button" id="pwCancel">취소</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <!-- 통지서 모달 -->
-<div class="modal" id="modal">
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="감사 결과 통지서">
   <div class="cert" id="cert"></div>
 </div>
 
 <!-- 분리된 애플리케이션 스크립트 -->
 <script src="app.js"></script>
 
-<!-- ===== 이음중앙관리국 소속 띠 (v1.3.0) ===== -->
-<script>
-(function(){
-  var BUREAU_URL='https://12cchris.github.io/ieum-central-bureau/';
-  var band;
-
-  function fit(){
-    if(!band) return;
-    var cur=parseFloat(band.style.marginTop)||0;
-    var natural=band.getBoundingClientRect().bottom+window.pageYOffset-cur;
-    var gap=Math.round(window.innerHeight-natural);
-    band.style.marginTop=(gap>0?gap:0)+'px';
-  }
-
-  function place(){
-    if(!band) return;
-    if(document.body.lastElementChild!==band)document.body.appendChild(band);
-    fit();
-  }
-
-  function init(){
-    if(document.getElementById('ieumBand'))return;
-    var st=document.createElement('style');
-    st.textContent=
-      '#ieumBand{display:block;width:100%;box-sizing:border-box;background:#003366;color:#dbe7f7;'
-     +'font:12px/1.4 "Noto Sans KR",sans-serif;text-align:center;padding:8px 16px;position:static}'
-     +'#ieumBand b{color:#fff;letter-spacing:1px}'
-     +'#ieumBand a{color:#dbe7f7;text-decoration:none;margin-left:10px}'
-     +'#ieumBand a:hover{color:#fff}';
-    document.head.appendChild(st);
-
-    band=document.createElement('div');
-    band.id='ieumBand';
-    band.innerHTML='소속 · <b>이음중앙관리국</b><a href="'+BUREAU_URL+'" target="_blank" rel="noopener">상위 기관 →</a>';
-    document.body.style.marginBottom='0';
-    document.body.appendChild(band);
-    fit();
-
-    new MutationObserver(function(){
-      if(document.body.lastElementChild!==band)place();
-    }).observe(document.body,{childList:true});
-    if(window.ResizeObserver)new ResizeObserver(fit).observe(document.body);
-    window.addEventListener('resize',fit);
-    window.addEventListener('load',function(){place();setTimeout(fit,300)});
-  }
-
-  if(document.body){init()}else{document.addEventListener('DOMContentLoaded',init)}
-})();
-</script>
+<!-- 이음중앙관리국 소속 띠 -->
+<div class="ieum-band">소속 · <b>이음중앙관리국</b><a href="https://12cchris.github.io/ieum-central-bureau/" target="_blank" rel="noopener">상위 기관 →</a></div>
 </body>
 </html>

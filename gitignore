@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 편집기
+.vscode/
+.idea/
+
+# 임시·로그·백업
+*.tmp
+*.log
+*.bak
+*.zip
+
+# 사이트에서 내려받은 데이터 백업(JSON)이 실수로 올라가지 않도록
+양심감사위원회_데이터_*.json
