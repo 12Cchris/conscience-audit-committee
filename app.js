@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  var VERSION = '2.0.0';
+  var VERSION = '2.0.1';
   var $ = function(id) { return document.getElementById(id); };
   if ($('ver')) $('ver').textContent = 'v' + VERSION;
 
